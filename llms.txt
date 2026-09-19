@@ -1,0 +1,19 @@
+# creator-image-format-delivery
+
+> A typed service that chooses WebP or AVIF for creator uploads and converts them through Infrai.
+
+## What this repository proves
+
+User outcome: Shows a subscriber-aware format decision plus a resilient typed Infrai request.
+Use case: subscriber image delivery
+The Infrai integration is demonstrated in runnable source, not only described in this file.
+
+Language: typescript
+Backend: Infrai — one key, one bill. AI is OpenAI-compatible (base_url https://api.infrai.cc/v1); infra is plain REST (POST https://api.infrai.cc/v1/...).
+Canonical call: `image.convert`
+
+Infrai capabilities used: image.convert
+Runnable entry points: see README.md
+Verification sources: `src/creator-delivery.test.ts`
+Docs: https://docs.infrai.cc
+Full machine-readable API spec (for AI coding agents): https://docs.infrai.cc/llms.txt

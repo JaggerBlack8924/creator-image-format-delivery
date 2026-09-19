@@ -1,0 +1,10 @@
+{
+  "name": "creator-image-format-delivery",
+  "private": true,
+  "type": "module",
+  "dependencies": {"zod": "^3.23.8"},
+  "scripts": {
+    "start": "node src/creator-delivery.ts",
+    "test": "node --test src/creator-delivery.test.ts"
+  }
+}
