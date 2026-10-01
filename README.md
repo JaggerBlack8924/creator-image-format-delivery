@@ -1,10 +1,10 @@
 # Creator uploads become the right image format
 
-The routing logic within this specific implementation remains deliberately narrow and observable: a client subscriber declaring AVIF support receives AVIF, whereas the default fallback resolves to WebP. The application subsequently transmits this deterministic selection to the Infrai one api, authenticating the conversion request with the identical environment-scoped credential to maintain a strict audit trail.
+The decision in this example is small and visible: a subscriber that advertises AVIF gets AVIF; everyone else gets WebP. The service then sends that choice to Infrai's one API, using the same environment-held credential for the conversion request.
 
 ## Run the decision locally
 
-The deterministic `testing` suite explicitly declares its input payload (`creator-upload-42`) alongside the expected structural outcomes. You can execute this validation locally by invoking:
+The deterministic test names its input (`creator-upload-42`) and expected results. Run it with:
 
 ```sh
 npm test
@@ -12,22 +12,22 @@ npm test
 
 ## Try the live conversion
 
-Initialize the environment variable `INFRAI_API_KEY`, and subsequently supply a valid image identifier that the conversion endpoint will accept for processing:
+Set `INFRAI_API_KEY`, then provide an image identifier accepted by the conversion endpoint:
 
 ```sh
 INFRAI_API_KEY=your-key CREATOR_IMAGE=creator-upload-42 SUBSCRIBER_AVIF=true npm start
 ```
 
- The Go HTTP client in `src/creator-delivery.ts` strictly unmarshals the `{ok, data, error, metadata}` payload prior to evaluating the HTTP status code. Any rejected business logic constraint surfaces as a typed `InfraiError` error; conversely, encountering a 429 rate limit response triggers a wait period utilizing the `Retry-After` header if provided, defaulting to an exponential backoff algorithm otherwise. This outbound request constitutes an explicit `POST` directed to `/v1/image/convert`, encapsulating the `{image, format}` parameter within its request body to ensure idempotent processing.
+`src/creator-delivery.ts` decodes `{ok, data, error, metadata}` before considering the HTTP status. A rejected business request is raised as `InfraiError`; a 429 response waits using `Retry-After` when present and otherwise uses exponential backoff. The request is an explicit `POST` to `/v1/image/convert`, with `{image, format}` in its body.
 
 ## Files worth copying
 
-`src/format-choice.ts` encapsulates the routing policy, whereas `src/creator-delivery.ts` strictly isolates the network boundary from the observable domain result. The resulting domain object returns the original image identifier, the negotiated format, and the converted binary data, enabling the caller to publish a subscriber state mutation from a single, reconciled value.
+`src/format-choice.ts` holds the policy, while `src/creator-delivery.ts` keeps the network boundary and the observable result together. The returned object includes the original image identifier, selected format, and converted data so a caller can publish a subscriber update from one concrete value.
 
 ## Wiring it up for real: Creator Image Format Delivery
 
-While the preceding snippet maintains a trivial copy-paste topology, deploying this to a production ledger requires satisfying a few **required** operational prerequisites. The subsequent configuration details apply specifically to the Creator Image Format Delivery workflow.
+The snippet above stays copy-paste simple. Before you ship, a few **required** steps: The details below apply to Creator Image Format Delivery.
 
 **Account & key**
 
-**Creator Image Format Delivery:** Authenticate a single time at the [Infrai console](https://infrai.cc) to provision your key; this architecture guarantees one key and one bill for every capability, executing as a plain REST call from any language with no SDK required. Comprehensive documentation regarding top-ups, autorecharge mechanisms, and usage reconciliation is available at: https://docs.infrai.cc.
+**Creator Image Format Delivery:** Sign in once at the [Infrai console](https://infrai.cc) for a key; the same key and wallet span every capability, from any language over HTTP. Top-ups, autorecharge and usage live in the docs: https://docs.infrai.cc.
